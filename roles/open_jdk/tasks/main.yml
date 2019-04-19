@@ -1,0 +1,7 @@
+---
+- name: Install Open JDK
+  become: yes
+  apt:
+    name: '{{ jdk_packages }}'
+    state: latest
+    update_cache: yes

@@ -1,0 +1,51 @@
+---
+- hosts: proxmox_host
+  become: yes
+  roles:
+    - proxmox_lxc
+  vars:
+    api_host: '192.168.0.2'
+    api_user: 'root@pam'
+    cores: 1
+    cpuunits: 1000
+    disk_size: 8
+    gateway: '192.168.0.1'
+    hostname: 'nexus'
+    lxc_ip: '192.168.0.100'
+    mac_addr: 'AA:BB:CC:DD:EE:00'
+    memory_size: 512
+    # This is needed if you plan to make the data accessible outside of the container, otherwise set it to '{}'
+    mounts: '{"mp0": "/container-data/nexus,mp={{ nexus_data_dir }}"}'
+    netif: '{"net0": "name=eth0,hwaddr={{ mac_addr }},gw={{ gateway }},ip={{ lxc_ip }}/24,bridge=vmbr0"}'
+    nexus_data_dir: '/volumes/data/nexus'
+    node: 'proxmox-01'
+    # Assumes the template below has already been downloaded to the 'local' storage repository
+    os_template: 'local:vztmpl/debian-9.0-standard_9.3-1_amd64.tar.gz'
+    pubkey: "{{ lookup('file', '../files/your-public-key.pub') }}"
+    resource_pool: ''
+    start_container: 'yes'
+    storage: 'local-lvm'
+    swap_size: 512
+    validate_certs: 'no'
+    vm_id: 100
+  vars_prompt:
+    - name: 'api_password'
+      prompt: 'PVE API password'
+      private: yes
+    - name: 'lxc_password'
+      prompt: 'LXC password'
+      private: yes
+
+- hosts: debian_lxc
+  become: yes
+  roles:
+    - dist_upgraded
+    - localized
+    - ntp
+  vars:
+    debian_version_name: 'stretch'
+    file_encoding: 'UTF-8'
+    locale_cd: 'en_US'
+    ntp_country_code: 'US'
+    user_group: 'root'
+    user_name: 'root'

@@ -1,0 +1,19 @@
+---
+- hosts: proxmox_host
+  become: yes
+  roles:
+    - dist_upgraded
+    - proxmox_host
+  vars:
+    debian_version_name: 'stretch'
+    disable_subscription_check: 'yes'
+    external_address: '192.168.0.2'
+    external_broadcast: '192.168.0.255'
+    external_gateway: '192.168.0.1'
+    external_network: '192.168.0.0'
+    external_subnet_mask: '255.255.255.0'
+    internal_address: '10.10.10.1'
+    internal_network: '10.10.10.0'
+    internal_subnet_mask:
+    proxmox_version: '5.2'
+    proxmox_version_group: '5.x'

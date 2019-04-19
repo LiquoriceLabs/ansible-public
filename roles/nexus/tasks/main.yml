@@ -1,0 +1,40 @@
+---
+- name: Download nexus package
+  become: yes
+  get_url:
+    url: 'https://sonatype-download.global.ssl.fastly.net/repository/repositoryManager/{{nexus_major_version}}/nexus-{{nexus_full_version}}-unix.tar.gz'
+    dest: '/opt/nexus-{{nexus_full_version}}.tar.gz'
+
+- name: Extract nexus archive
+  become: yes
+  unarchive:
+    remote_src: yes
+    src: '/opt/nexus-{{nexus_full_version}}.tar.gz'
+    dest: '/opt'
+    owner: '{{ user_name }}'
+    group: '{{ user_group }}'
+
+- name: Update data directory
+  become: yes
+  replace:
+    path: '/opt/nexus-{{nexus_full_version}}/bin/nexus.vmoptions'
+    regexp: "../sonatype-work/nexus3"
+    replace: "{{ nexus_data_dir }}"
+  notify: restart nexus
+
+- name: Copy startup script
+  become: yes
+  template:
+    src: 'nexus.service.j2'
+    dest: '/etc/systemd/system/nexus.service'
+    owner: '{{ user_name }}'
+    group: '{{ user_group }}'
+    mode: 0600
+    force: yes
+  notify: restart nexus
+
+- name: Update rc.d
+  become: yes
+  systemd:
+    enabled: yes
+    name: nexus
