@@ -1,0 +1,12 @@
+- name: reload systemd configuration
+  become: yes
+  command: systemctl daemon-reload
+
+# Restart service and ensure it is enabled
+
+- name: restart nexus
+  become: yes
+  systemd:
+    name: nexus
+    state: restarted
+  register: nexus_restarted

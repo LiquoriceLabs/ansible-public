@@ -1,0 +1,13 @@
+- name: restart networking
+  become: yes
+  systemd:
+    name: networking
+    state: restarted
+  register: networking_restarted
+
+- name: restart pveproxy
+  become: yes
+  systemd:
+    name: pveproxy
+    state: restarted
+  register: pveproxy_restarted

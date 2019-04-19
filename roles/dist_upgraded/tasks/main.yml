@@ -1,0 +1,5 @@
+---
+- name: Update system
+  become: yes
+  apt:
+    upgrade: dist

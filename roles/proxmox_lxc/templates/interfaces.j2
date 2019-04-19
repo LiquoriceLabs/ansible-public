@@ -1,0 +1,27 @@
+auto lo
+iface lo inet loopback
+
+iface eth0 inet manual
+
+auto vmbr0
+iface vmbr0 inet static
+	address  {{ ansible_eth0.ipv4.address }}
+	netmask  {{ external_subnet_mask }}
+	gateway  {{ external_gateway }}
+	broadcast  {{ external_broadcast }}
+	bridge_ports eth0
+	bridge_stp off
+	bridge_fd 0
+	network {{ external_network }}
+
+auto vmbr2
+iface vmbr2 inet static
+	address  {{ internal_address }}
+	netmask  255.255.255.0
+	bridge_ports vmbr0
+	bridge_stp off
+	bridge_fd 0
+
+    post-up echo 1 > /proc/sys/net/ipv4/ip_forward
+    post-up   iptables -t nat -A POSTROUTING -s '{{ internal_network }}/24' -o vmbr0 -j MASQUERADE
+    post-down iptables -t nat -D POSTROUTING -s '{{ internal_network }}/24' -o vmbr0 -j MASQUERADE
